@@ -3,6 +3,7 @@ from .utilities import *
 import json
 from .config import *
 
+
 def api_get_point_values(request):
     json_obj = {}
 
@@ -26,23 +27,17 @@ def api_get_point_values(request):
         if request.GET.get('storage_type'):
             storage_type = request.GET['storage_type']
 
-
         if request.GET.get('start_date'):
             start_date = request.GET['start_date']
         if request.GET.get('end_date'):
             end_date = request.GET['end_date']
 
-
         coords = str(longitude) + ',' + str(latitude)
 
-
-        GLOBAL_NC = GLOBAL_NETCDF_DIR+'GRC_'+signal_solution+'_'+storage_type+'.nc'
-
-
-
+        GLOBAL_NC = get_global_netcdf_dir()+'GRC_'+signal_solution+'_'+storage_type+'.nc'
 
         try:
-            graph = get_global_plot_api(coords,start_date,end_date,GLOBAL_NC,signal_solution,storage_type)
+            graph = get_global_plot_api(coords, start_date, end_date, GLOBAL_NC, signal_solution, storage_type)
             graph = json.loads(graph)
             json_obj = graph
 
@@ -72,14 +67,12 @@ def api_get_point_values(request):
         if request.GET.get('storage_type'):
             storage_type = request.GET['storage_type']
 
-
         coords = str(longitude) + ',' + str(latitude)
 
-        GLOBAL_NC = GLOBAL_NETCDF_DIR+'GRC_'+signal_solution+'_'+storage_type+'.nc'
-
+        GLOBAL_NC = get_global_netcdf_dir()+'GRC_'+signal_solution+'_'+storage_type+'.nc'
 
         try:
-            graph = get_global_plot_api(coords,start_date,end_date,GLOBAL_NC)
+            graph = get_global_plot_api(coords, start_date, end_date, GLOBAL_NC)
             graph = json.loads(graph)
             json_obj = graph
 

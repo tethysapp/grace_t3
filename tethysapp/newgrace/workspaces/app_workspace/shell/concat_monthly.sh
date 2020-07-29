@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $1 = GLOBAL_NETCDF_DIR
+# $1 = get_global_netcdf_dir()
 
 
 cd $1

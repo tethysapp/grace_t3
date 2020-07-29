@@ -1,21 +1,24 @@
 from django.http import JsonResponse, HttpResponse, Http404
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required,user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from tethys_sdk.gizmos import *
 from .utilities import *
-import json,time
+import json
+import time
 from tethys_dataset_services.engines import GeoServerSpatialDatasetEngine
 from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.exc import IntegrityError
 from .model import *
-import requests, urlparse
+import requests
+import urllib.parse
 import shapely.geometry
 import os
 from .app import *
-from .config import GLOBAL_NETCDF_DIR
+from .config import get_global_netcdf_dir
 from .SHAZAAM import *
 from .utilities import *
+
 
 def get_plot_global(request):
 
@@ -27,8 +30,7 @@ def get_plot_global(request):
         storage_type = request.POST['storage_type']
         signal_process = request.POST['signal_process']
 
-        GLOBAL_DIR = os.path.join(GLOBAL_NETCDF_DIR, '')
-
+        GLOBAL_DIR = os.path.join(get_global_netcdf_dir(), '')
 
         gbyos_grc_ncf = GLOBAL_DIR + 'GRC_'+signal_process+'_'+storage_type+'.nc'
 
@@ -54,18 +56,16 @@ def get_plot_global(request):
         # graph_gw = json.loads(graph_gw)
         # return_obj["gw_values"] = graph_gw["values"]
 
-
-
-        graph = get_global_plot(pt_coords,gbyos_grc_ncf)
+        graph = get_global_plot(pt_coords, gbyos_grc_ncf)
         graph = json.loads(graph)
         return_obj["values"] = graph["values"]
         return_obj["integr_values"] = graph["integr_values"]
         return_obj["location"] = graph["point"]
 
-
         return_obj['success'] = "success"
 
     return JsonResponse(return_obj)
+
 
 def get_plot_reg_pt(request):
     return_obj = {}
@@ -84,7 +84,7 @@ def get_plot_reg_pt(request):
         # display_name = region.display_name
         region_store = ''.join(display_name.split()).lower()
 
-        GLOBAL_DIR = os.path.join(GLOBAL_NETCDF_DIR, '')
+        GLOBAL_DIR = os.path.join(get_global_netcdf_dir(), '')
 
         # FILE_DIR = os.path.join(GLOBAL_DIR, '')
 
@@ -94,14 +94,13 @@ def get_plot_reg_pt(request):
         nc_file = GLOBAL_DIR + 'GRC_' + signal_solution + '_' + storage_type + '.nc'
 
         if pt_coords:
-            graph = get_pt_region(pt_coords,nc_file)
+            graph = get_pt_region(pt_coords, nc_file)
             graph = json.loads(graph)
             return_obj["values"] = graph["values"]
             return_obj["integr_values"] = graph["integr_values"]
             return_obj["location"] = graph["point"]
 
         return_obj["success"] = "success"
-
 
     return JsonResponse(return_obj)
 
@@ -124,15 +123,13 @@ def region_add(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        subset2(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        subset2(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"success":"success"}
+        response = {"success": "success"}
 
         return JsonResponse(response)
-
-
 
 
 #############################################################################################
@@ -160,13 +157,14 @@ def subset_initial_processing(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_initial(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_initial(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"initial":"initial"}
+        response = {"initial": "initial"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_jpl_tot(request):
@@ -186,13 +184,14 @@ def subset_jpl_tot(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_jpl_tot(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_jpl_tot(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"jpl-tot":"jpl-tot"}
+        response = {"jpl-tot": "jpl-tot"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_jpl_gw(request):
@@ -212,13 +211,14 @@ def subset_jpl_gw(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_jpl_gw(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_jpl_gw(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"jpl-gw":"jpl-gw"}
+        response = {"jpl-gw": "jpl-gw"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_csr_tot(request):
@@ -238,13 +238,14 @@ def subset_csr_tot(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_csr_tot(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_csr_tot(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"csr-tot":"csr-tot"}
+        response = {"csr-tot": "csr-tot"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_csr_gw(request):
@@ -264,13 +265,14 @@ def subset_csr_gw(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_csr_gw(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_csr_gw(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"csr-gw":"csr-gw"}
+        response = {"csr-gw": "csr-gw"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_gfz_tot(request):
@@ -290,13 +292,14 @@ def subset_gfz_tot(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_gfz_tot(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_gfz_tot(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"gfz-tot":"gfz-tot"}
+        response = {"gfz-tot": "gfz-tot"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_gfz_gw(request):
@@ -316,13 +319,14 @@ def subset_gfz_gw(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_gfz_gw(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_gfz_gw(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"gfz-gw":"gfz-gw"}
+        response = {"gfz-gw": "gfz-gw"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_avg_tot(request):
@@ -342,13 +346,14 @@ def subset_avg_tot(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_avg_tot(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_avg_tot(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"avg-tot":"avg-tot"}
+        response = {"avg-tot": "avg-tot"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_avg_gw(request):
@@ -368,11 +373,11 @@ def subset_avg_gw(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_avg_gw(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_avg_gw(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"avg-gw":"avg-gw"}
+        response = {"avg-gw": "avg-gw"}
 
         return JsonResponse(response)
 
@@ -395,13 +400,14 @@ def subset_sw(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_sw(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_sw(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"sw":"sw"}
+        response = {"sw": "sw"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_soil(request):
@@ -421,13 +427,14 @@ def subset_soil(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_soil(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_soil(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"soil":"soil"}
+        response = {"soil": "soil"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_cleanup(request):
@@ -447,13 +454,14 @@ def subset_cleanup(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_file_cleanup(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_file_cleanup(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"cleanup":"cleanup"}
+        response = {"cleanup": "cleanup"}
 
         return JsonResponse(response)
+
 
 @user_passes_test(user_permission_test)
 def subset_update(request):
@@ -473,14 +481,13 @@ def subset_update(request):
         session = Session()
 
         thredds = session.query(Thredds).get(thredds_id)
-        url,uname,pwd = thredds.url,thredds.username,thredds.password
+        url, uname, pwd = thredds.url, thredds.username, thredds.password
 
-        sub_update_ps(shapefile, region_store, GLOBAL_NETCDF_DIR, region_name,thredds_id)
+        sub_update_ps(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
 
-        response = {"success":"success"}
+        response = {"success": "success"}
 
         return JsonResponse(response)
-
 
 
 #############################################################################################
@@ -488,8 +495,6 @@ def subset_update(request):
 ##                              END Chained Subsetting functions                           ##
 ##                                                                                         ##
 #############################################################################################
-
-
 
 
 @user_passes_test(user_permission_test)
@@ -511,15 +516,15 @@ def thredds_server_add(request):
             # if layer_list:
             Session = Newgrace.get_persistent_store_database('gracefo_db', as_sessionmaker=True)
             session = Session()
-            thredds_server = Thredds(name=thredds_server_name, url=thredds_server_url, username=thredds_server_username, password=thredds_server_password)
+            thredds_server = Thredds(name=thredds_server_name, url=thredds_server_url,
+                                     username=thredds_server_username, password=thredds_server_password)
             session.add(thredds_server)
             session.commit()
             session.close()
             response = {"data": thredds_server_name, "success": "Success"}
         except Exception as e:
-            print e
-            response={"error":"Error processing the Thredds Server URL. Please check the url,username and password."}
-
+            print(e)
+            response = {"error": "Error processing the Thredds Server URL. Please check the url,username and password."}
 
         return JsonResponse(response)
 
@@ -552,8 +557,6 @@ def thredds_server_update(request):
 
         thredds = session.query(Thredds).get(thredds_id)
         try:
-
-
 
             thredds.name = thredds_name
             thredds.url = thredds_url
@@ -597,6 +600,7 @@ def thredds_server_delete(request):
         return JsonResponse({'success': "Thredds Server sucessfully deleted!"})
     return JsonResponse({'error': "A problem with your request exists."})
 
+
 @user_passes_test(user_permission_test)
 def region_delete(request):
     """
@@ -625,11 +629,9 @@ def region_delete(request):
             uname = thredds.username
             pwd = thredds.password
 
-
-            FILE_DIR = os.path.join(GLOBAL_NETCDF_DIR, '')
+            FILE_DIR = os.path.join(get_global_netcdf_dir(), '')
 
             region_dir = os.path.join(FILE_DIR + region_store, '')
-
 
             session.delete(region)
             session.commit()
@@ -640,10 +642,9 @@ def region_delete(request):
             return JsonResponse(
                 {'error': "This thredds is connected with a watershed! Must remove connection to delete."})
         finally:
-        # Delete the temporary directory once the geojson string is created
+            # Delete the temporary directory once the geojson string is created
             if region_dir is not None:
                 if os.path.exists(region_dir):
                     shutil.rmtree(region_dir)
         return JsonResponse({'success': "Region sucessfully deleted!"})
     return JsonResponse({'error': "A problem with your request exists."})
-
