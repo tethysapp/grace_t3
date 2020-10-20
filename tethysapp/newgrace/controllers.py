@@ -130,7 +130,6 @@ def region(request):
         region_list.append(("%s" % (reg.display_name), reg.id))
     lower_name = ''.join(display_name.split()).lower()
     session.close()
-
     if region_list:
         select_region = SelectInput(display_text='Switch Region:',
                                     name='region-select',
@@ -176,8 +175,8 @@ def region(request):
     else:
         map_center = [(int(bbox[1]) + int(bbox[3])) / 2, (int(bbox[0]) + int(bbox[2])) / 2]
     json.dumps(map_center)
-
     context = {"region_id": region_id,
+               "regions_length": len(region_list),
                "thredds_wms": thredds_wms,
                "region_area": region_area,
                "display_name": display_name,

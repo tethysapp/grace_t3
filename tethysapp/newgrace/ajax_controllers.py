@@ -111,6 +111,7 @@ def region_add(request):
     response = {}
 
     if request.is_ajax() and request.method == 'POST':
+        start_time = time.time()
         info = request.POST
 
         region_name = info.get('region_name')
@@ -126,7 +127,8 @@ def region_add(request):
         url, uname, pwd = thredds.url, thredds.username, thredds.password
 
         subset2(shapefile, region_store, get_global_netcdf_dir(), region_name, thredds_id)
-
+        end_time = time.time()
+        total_time = (end_time - start_time) / 60
         response = {"success": "success"}
 
         return JsonResponse(response)

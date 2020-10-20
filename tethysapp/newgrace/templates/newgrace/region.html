@@ -50,7 +50,7 @@
     <body>
     <script>window.onbeforeunload = null;</script>
 
-        {% if regions_length < 1 %}
+        {% if regions_length > 1 %}
         <span class="reg_options" style="display: inline-block; white-space:nowrap; float:left; width:12%">
         <form action="{% url 'newgrace:region' %}" method="get">
                     <a name="submit-go-to-map" onchange="document.forms[0].submit();" id="submit-go-to-map" style="color:black;">
@@ -64,7 +64,7 @@
             <a href="{% url 'newgrace:add-region' %}">Add New Region</a>.</p></span>
         {% endif %}
         {% else %}
-        <span class="alert alert-warning" style="display: inline-block; white-space:nowrap; float:left;" role="alert">Sorry. There appear to be no other regions.
+            <span class="alert alert-warning" style="display: inline-block; white-space:nowrap; float:left;" role="alert">Sorry. There appear to be no other regions.
         {% if user.is_superuser or user.is_staff %}
         <span><p>To add one click <a href="{% url 'newgrace:add-region' %}">here.</a></p></span>
         {% endif %}

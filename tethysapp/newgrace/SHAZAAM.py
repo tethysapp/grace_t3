@@ -170,9 +170,6 @@ def sub_initial(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         return JsonResponse({"initial": "initial"})
 
 
-
-
-
 def sub_jpl_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         SHP_DIR = SHAPE_DIR
@@ -261,9 +258,6 @@ def sub_jpl_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         return JsonResponse({"jpl_gw": "jpl_gw"})
 
 
-
-
-
 def sub_csr_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         SHP_DIR = SHAPE_DIR
@@ -305,6 +299,7 @@ def sub_csr_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         print('Subsetting CSR Total Water Storage')
 
         return JsonResponse({"csr_tot": "csr_tot"})
+
 
 def sub_csr_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
@@ -349,6 +344,7 @@ def sub_csr_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         return JsonResponse({"csr_gw": "csr_gw"})
 
+
 def sub_gfz_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         SHP_DIR = SHAPE_DIR
@@ -390,6 +386,7 @@ def sub_gfz_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         print('Subsetting GFZ Total Water Storage')
 
         return JsonResponse({"gfz_tot": "gfz_tot"})
+
 
 def sub_gfz_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
@@ -434,6 +431,7 @@ def sub_gfz_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         return JsonResponse({"gfz_gw": "gfz_gw"})
 
+
 def sub_avg_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         SHP_DIR = SHAPE_DIR
@@ -475,6 +473,7 @@ def sub_avg_tot(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         print('Subsetting AVG Total Storage')
 
         return JsonResponse({"avg_tot": "avg_tot"})
+
 
 def sub_avg_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
@@ -518,10 +517,6 @@ def sub_avg_gw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         print('Subsetting AVG Groundwater Storage')
 
         return JsonResponse({"avg_gw": "avg_gw"})
-
-
-
-
 
 
 def sub_sw(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
@@ -608,6 +603,7 @@ def sub_soil(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         return JsonResponse({"soil": "soil"})
 
+
 def sub_file_cleanup(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
         SHP_DIR = SHAPE_DIR
@@ -667,6 +663,7 @@ def sub_file_cleanup(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
         print('Copying and moving files')
 
         return JsonResponse({"cleanup": "cleanup"})
+
 
 def sub_update_ps(shapefile,region_name,GLOBAL_DIR,display_name,thredds_id):
 
